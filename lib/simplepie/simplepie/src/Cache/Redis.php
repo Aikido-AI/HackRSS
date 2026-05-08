@@ -19,6 +19,11 @@ use Redis as NativeRedis;
  * connect to redis on `localhost` on port 6379. All tables will be
  * prefixed with `simple_primary-` and data will expire after 3600 seconds
  *
+ * Security: Authentication is required for non-localhost connections.
+ * Use `redis://user:password@host:port/dbIndex` for authenticated connections.
+ * For Redis 6+ with ACL, provide both username and password.
+ * For legacy Redis, provide only password: `redis://:password@host:port/dbIndex`
+ *
  * @uses Redis
  * @deprecated since SimplePie 1.8.0, use implementation of "Psr\SimpleCache\CacheInterface" instead
  */
@@ -51,19 +56,74 @@ class Redis implements Base
      * @param string $location Location string (from SimplePie::$cache_location)
      * @param string $name Unique ID for the cache
      * @param Base::TYPE_FEED|Base::TYPE_IMAGE|array<string, mixed>|null $options Either TYPE_FEED for SimplePie data, or TYPE_IMAGE for image data
+     * @throws \RuntimeException If Redis connection fails or authentication is missing
      */
     public function __construct(string $location, string $name, $options = null)
     {
         //$this->cache = \flow\simple\cache\Redis::getRedisClientInstance();
         $parsed = \SimplePie\Cache::parse_URL($location);
+        
+        // Set default values for connection parameters
+        $host = $parsed['host'] ?? '127.0.0.1';
+        $port = isset($parsed['port']) ? (int)$parsed['port'] : 6379;
+        $timeout = 2.5; // Connection timeout in seconds
+        
+        // Security: Require authentication for non-localhost connections
+        // For localhost/127.0.0.1, authentication is optional (development mode)
+        $isLocalhost = in_array($host, ['localhost', '127.0.0.1', '::1'], true);
+        
+        if (!$isLocalhost && !isset($parsed['pass'])) {
+            throw new \RuntimeException(
+                'Redis authentication is required for non-localhost connections. ' .
+                'Please provide credentials in the connection URL: redis://user:password@host:port'
+            );
+        }
+        
         $redis = new NativeRedis();
-        $redis->connect($parsed['host'], $parsed['port']);
+        
+        // Attempt to connect with timeout
+        try {
+            $connected = $redis->connect($host, $port, $timeout);
+            if (!$connected) {
+                throw new \RuntimeException("Failed to connect to Redis server at {$host}:{$port}");
+            }
+        } catch (\RedisException $e) {
+            throw new \RuntimeException("Redis connection error: " . $e->getMessage(), 0, $e);
+        }
+        
+        // Authenticate if password is provided
         if (isset($parsed['pass'])) {
-            $redis->auth($parsed['pass']);
+            try {
+                // Support both user:pass and pass-only authentication
+                if (isset($parsed['user']) && $parsed['user'] !== '') {
+                    // Redis 6+ ACL authentication with username
+                    $authenticated = $redis->auth([$parsed['user'], $parsed['pass']]);
+                } else {
+                    // Legacy password-only authentication
+                    $authenticated = $redis->auth($parsed['pass']);
+                }
+                
+                if (!$authenticated) {
+                    throw new \RuntimeException('Redis authentication failed. Please check your credentials.');
+                }
+            } catch (\RedisException $e) {
+                throw new \RuntimeException("Redis authentication error: " . $e->getMessage(), 0, $e);
+            }
         }
-        if (isset($parsed['path'])) {
-            $redis->select((int)substr($parsed['path'], 1));
+        
+        // Select database if specified in path
+        if (isset($parsed['path']) && $parsed['path'] !== '' && $parsed['path'] !== '/') {
+            $dbIndex = (int)substr($parsed['path'], 1);
+            try {
+                $selected = $redis->select($dbIndex);
+                if (!$selected) {
+                    throw new \RuntimeException("Failed to select Redis database {$dbIndex}");
+                }
+            } catch (\RedisException $e) {
+                throw new \RuntimeException("Redis database selection error: " . $e->getMessage(), 0, $e);
+            }
         }
+        
         $this->cache = $redis;
 
         if (!is_null($options) && is_array($options)) {
