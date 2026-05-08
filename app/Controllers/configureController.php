@@ -658,6 +658,10 @@ class FreshRSS_configure_Controller extends FreshRSS_ActionController {
 			Minz_Error::error(403);
 		}
 
+		if (FreshRSS_Auth::requestReauth()) {
+			return;
+		}
+
 		if (Minz_Request::isPost()) {
 			$limits = FreshRSS_Context::systemConf()->limits;
 			$limits['max_registrations'] = Minz_Request::paramIntNull('max-registrations') ?? 1;
