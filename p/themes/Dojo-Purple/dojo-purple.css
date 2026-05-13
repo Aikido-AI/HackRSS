@@ -1,0 +1,334 @@
+@charset "UTF-8";
+
+/*
+ * Dojo Purple — modern purple overlay for Origine.
+ * Only overrides CSS custom properties and a handful of structural rules
+ * so the upstream Origine theme can evolve freely underneath.
+ */
+
+/* ===========================
+   Light mode
+   =========================== */
+
+:root {
+	--background-color-light-gradient1: #faf8ff;
+	--background-color-light-gradient2: #efe8ff;
+	--background-color-light: #faf8ff;
+	--background-color-light-shadowed: #f0ebf8;
+	--background-color-light-shadowed-transparent: #ede6f6a8;
+	--background-color-grey: #f0eaf8;
+	--background-color-hover: #ece4f7;
+
+	--unread-article-background-color: #f3edff;
+	--unread-article-background-color-hover: #ebe3fb;
+	--unread-article-border-color: #7c3aed;
+	--favorite-article-background-color: #fdf6e8;
+	--favorite-article-background-color-hover: #faf0dc;
+	--favorite-article-border-color: #d97706;
+
+	--contrast-background-color: #7c3aed;
+	--contrast-background-color-gradient: #5b21b6;
+	--contrast-background-color-hover: #6d28d9;
+	--contrast-background-color-active: #5b21b6;
+	--contrast-border-color: #6d28d9;
+
+	--contrast-background-font-color: #f5f3ff;
+
+	--attention-background-color-gradient1: #ef4444;
+	--attention-background-color-gradient2: #b91c1c;
+	--attention-background-color-gradient1-hover: #dc2626;
+	--attention-background-color-gradient2-hover: #991b1b;
+	--attention-background-color-active: #991b1b;
+	--attention-border-color: #dc2626;
+
+	--empty-feed-color: #d97706;
+	--error-feed-color: #dc2626;
+
+	--alert-warn-background-color: #fefce8;
+	--alert-warn-font-color: #713f12;
+	--alert-warn-border-color: #fde68a;
+	--alert-success-background-color: #ecfdf5;
+	--alert-success-font-color: #065f46;
+	--alert-success-border-color: #a7f3d0;
+	--alert-error-background-color: #fef2f2;
+	--alert-error-font-color: #7f1d1d;
+	--alert-error-boder-color: #fecaca;
+
+	--notification-good-background-color: #f5f3ff;
+	--notification-good-border-color: #c4b5fd;
+	--notification-good-font-color: #5b21b6;
+	--notification-bad-background-color: #fef2f2;
+	--notification-bad-font-color: #7f1d1d;
+	--notification-bad-border-color: #fecaca;
+	--notification-close-background-color-hover: #8b5cf620;
+
+	--font-color: #1e1b2e;
+	--font-color-grey: #5b5675;
+	--font-color-light-shadowed: #a39ec0;
+	--font-color-light: #fff;
+
+	--text-shadow-color: #c4b5fd;
+	--text-shadow-color-dark: #7c3aed;
+	--box-shadow-color: #7c3aed18;
+	--box-shadow-color-inset: #ede9fe;
+
+	--font-color-link: #7c3aed;
+	--font-color-link-hover: #5b21b6;
+
+	--border-color: #ddd6fe;
+	--border-color-shadow-side: #c4b5fd;
+	--frss-border-color: var(--border-color);
+	--contrast-border-color-active: #7c3aed;
+
+	--form-element-font-color-focus: #6d28d9;
+	--form-element-border-color-focus: #a78bfa;
+	--form-element-focus-box-shadow-color-inset: #ede9fe;
+	--form-element-border-color-invalid: #ef4444;
+	--form-element-invalid-box-shadow-color-inset: #fef2f2;
+
+	--frss-switch-accent-color: #a78bfa;
+	--frss-background-color: #faf8ff;
+	--frss-background-color-middle: #ede9fe;
+	--frss-background-color-dark: #c4b5fd;
+
+	/* Softer scrollbar tints */
+	--frss-scrollbar-handle: #7c3aed18;
+	--frss-scrollbar-handle-hover: #7c3aed35;
+	--frss-scrollbar-track: #7c3aed08;
+	--frss-scrollbar-track-hover: #7c3aed08;
+}
+
+/* Modern touches — slightly rounder corners, softer shadows */
+.box {
+	border-radius: 10px;
+	box-shadow: 0 2px 12px #7c3aed12;
+}
+
+.box .box-title {
+	border-radius: 10px 10px 0 0;
+}
+
+.btn {
+	border-radius: 6px;
+	transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-important {
+	box-shadow: 0 2px 8px #7c3aed30;
+}
+
+.btn-important:hover {
+	box-shadow: 0 4px 14px #7c3aed40;
+}
+
+.dropdown-menu {
+	border-radius: 8px;
+	box-shadow: 0 4px 20px #7c3aed15;
+}
+
+.alert {
+	border-radius: 8px;
+}
+
+.notification {
+	border-radius: 8px;
+	box-shadow: 0 4px 16px #7c3aed20;
+}
+
+input, select, textarea {
+	border-radius: 6px;
+}
+
+.stick .btn:first-child,
+.group .btn:first-child,
+.stick input:first-child,
+.stick select:first-child {
+	border-radius: 6px 0 0 6px;
+}
+
+.stick .btn:last-child,
+.group .btn:last-child,
+.stick input:last-child {
+	border-radius: 0 6px 6px 0;
+}
+
+.stick .dropdown:last-child > .btn,
+.group .dropdown:last-child > .btn {
+	border-radius: 0 6px 6px 0;
+}
+
+.group > .btn:only-child,
+.group > .dropdown:only-child > .btn {
+	border-radius: 6px;
+}
+
+/* Smooth transitions on interactive elements */
+.flux .flux_header:hover {
+	transition: background-color 0.15s ease;
+}
+
+.tree-folder-title:hover {
+	transition: background-color 0.15s ease;
+}
+
+.nav-list .nav-section .item:hover a,
+.nav-list .nav-section .item:hover .as-link {
+	transition: background-color 0.15s ease;
+}
+
+/* Slightly more generous sidebar padding for a cleaner feel */
+.aside.aside_feed {
+	padding: 0.75rem 0;
+}
+
+/* === Custom logo === */
+.header > .item.title a {
+	position: relative;
+}
+
+.header > .item.title .logo {
+	content: url('../Dojo-Purple/icons/dojo-logo.png');
+	padding: 2px 10px;
+	width: auto;
+	height: 2rem;
+	background-color: #110d1f;
+	border-radius: 8px;
+	object-fit: contain;
+}
+
+/* ===========================
+   Dark mode (auto)
+   =========================== */
+
+@media screen and (prefers-color-scheme: dark) {
+	:root.darkMode_auto {
+		--frss-background-color: #0f0a1a;
+		--frss-background-color-middle: #1d1530;
+		--frss-border-color: #2d2245;
+		--frss-font-color-grey-dark: #9d8ec0;
+		--frss-font-color-dark: #ddd5f0;
+		--frss-modal-background-color-transparent: #0a0618a3;
+		--frss-background-color-transparent: #0a0618a3;
+		--frss-scrollbar-handle: #7c3aed18;
+		--frss-scrollbar-handle-hover: #7c3aed40;
+		--frss-font-color-grey-light: #443a60;
+		--frss-background-color-dark: #2d2245;
+		--frss-switch-accent-color: #7c3aed;
+
+		--background-color-light-gradient1: #16102a;
+		--background-color-light-gradient2: #0f0a1a;
+		--background-color-light: #110d1f;
+		--background-color-light-shadowed: #16102a;
+		--background-color-light-shadowed-transparent: #16102acf;
+		--background-color-grey: #1a1230;
+		--background-color-hover: #1f1638;
+
+		--unread-article-background-color: #1a1230;
+		--unread-article-background-color-hover: #231840;
+		--unread-article-border-color: #a78bfa;
+		--favorite-article-background-color: #1e1820;
+		--favorite-article-background-color-hover: #2a2030;
+		--favorite-article-border-color: #fbbf24;
+
+		--contrast-background-color: #7c3aed;
+		--contrast-background-color-gradient: #5b21b6;
+		--contrast-background-color-hover: #6d28d9;
+		--contrast-background-color-active: #4c1d95;
+		--contrast-border-color: #6d28d9;
+
+		--contrast-background-font-color: #ede9fe;
+
+		--attention-background-color-gradient1: #ef4444;
+		--attention-background-color-gradient2: #991b1b;
+		--attention-background-color-gradient1-hover: #dc2626;
+		--attention-background-color-gradient2-hover: #b91c1c;
+		--attention-background-color-active: #991b1b;
+		--attention-border-color: #dc2626;
+
+		--empty-feed-color: #d97706;
+		--error-feed-color: #dc2626;
+
+		--alert-warn-background-color: #fefce822;
+		--alert-warn-font-color: #ddd;
+		--alert-warn-border-color: #fde68a;
+		--alert-success-background-color: #ecfdf514;
+		--alert-success-font-color: #6ee7b7;
+		--alert-success-border-color: #a7f3d0;
+		--alert-error-background-color: #fdda;
+		--alert-error-font-color: #fca5a5;
+		--alert-error-boder-color: #fecaca;
+
+		--notification-good-background-color: #1a1230;
+		--notification-good-border-color: #6d28d9;
+		--notification-good-font-color: #c4b5fd;
+		--notification-bad-background-color: #fdd;
+		--notification-bad-font-color: #643838;
+		--notification-bad-border-color: #ecc;
+		--notification-close-background-color-hover: #7c3aed22;
+
+		--font-color: #ddd5f0;
+		--font-color-grey: #a89cc5;
+		--font-color-light-shadowed: #443a60;
+		--font-color-light: #ede9fe;
+
+		--text-shadow-color: #0f0a1a;
+		--text-shadow-color-dark: #7c3aed;
+		--box-shadow-color: #0006;
+		--box-shadow-color-inset: #1a1230;
+
+		--font-color-link: #a78bfa;
+		--font-color-link-hover: #c4b5fd;
+
+		--border-color: #2d2245;
+		--border-color-shadow-side: #1a1230;
+		--contrast-border-color-active: #7c3aed;
+
+		--form-element-font-color-focus: #c4b5fd;
+		--form-element-border-color-focus: #7c3aed;
+		--form-element-focus-box-shadow-color-inset: #1a1230;
+		--form-element-border-color-invalid: #ef4444;
+		--form-element-invalid-box-shadow-color-inset: none;
+	}
+
+	:root.darkMode_auto .header > .item.title .logo {
+		background-color: transparent;
+	}
+
+	:root.darkMode_auto .nav_menu .btn {
+		color: #6b5f8a;
+	}
+
+	:root.darkMode_auto .nav_menu .btn:hover {
+		color: var(--font-color-grey);
+	}
+
+	:root.darkMode_auto .nav_menu .btn.active,
+	:root.darkMode_auto .nav_menu .btn:active,
+	:root.darkMode_auto .nav_menu .dropdown-target:target ~ .btn.dropdown-toggle {
+		background: #231840;
+	}
+
+	:root.darkMode_auto .dropdown-menu {
+		background-color: #0d081a;
+	}
+
+	:root.darkMode_auto .nav_menu {
+		background-color: #130e22;
+	}
+
+	:root.darkMode_auto .header {
+		background-color: var(--background-color-light-shadowed);
+	}
+
+	:root.darkMode_auto .box {
+		box-shadow: 0 2px 12px #00000040;
+	}
+
+	:root.darkMode_auto .btn-important {
+		box-shadow: 0 2px 8px #7c3aed50;
+	}
+
+	:root.darkMode_auto .notification {
+		box-shadow: 0 4px 16px #00000050;
+	}
+}

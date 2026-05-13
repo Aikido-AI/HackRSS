@@ -73,7 +73,7 @@ return array (
 		'site' => true,
 	),
 	'filters' => [],
-	'theme' => 'Origine',
+	'theme' => 'Dojo-Purple',
 	'darkMode' => 'auto',
 	'content_width' => 'thin',
 	'shortcuts' => array (

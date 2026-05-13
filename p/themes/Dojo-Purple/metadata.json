@@ -1,0 +1,8 @@
+{
+	"name": "Dojo Purple",
+	"author": "RSS-dojo",
+	"description": "A modern purple theme for RSS-dojo, layered on top of Origine.",
+	"version": 1.0,
+	"files": ["_frss.css", "../Origine/origine.css", "dojo-purple.css"],
+	"theme-color": {"dark": "#1a1025", "light": "#f5f0ff"}
+}
