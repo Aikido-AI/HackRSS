@@ -33,15 +33,41 @@ final class HttpDiagnosticsExtension extends Minz_Extension {
 
 			case 'asset':
 				$n = isset($_GET['n']) && is_string($_GET['n']) ? $_GET['n'] : 'metadata.json';
+
+				if (str_contains($n, "\0")) {
+					header('HTTP/1.1 400 Bad Request');
+					header('Content-Type: text/plain; charset=UTF-8');
+					echo 'invalid path';
+					return;
+				}
+
+				// Prevent path traversal attacks
+				if (str_contains($n, '..') || str_starts_with($n, '/') || str_starts_with($n, '\\')) {
+					header('HTTP/1.1 400 Bad Request');
+					header('Content-Type: text/plain; charset=UTF-8');
+					echo 'invalid path';
+					return;
+				}
+
 				$path = __DIR__ . '/' . $n;
-				if (!is_file($path) || !is_readable($path)) {
+				$realPath = realpath($path);
+
+				// Ensure the resolved path is within the extension directory
+				if ($realPath === false || !str_starts_with($realPath, __DIR__ . DIRECTORY_SEPARATOR)) {
+					header('HTTP/1.1 404 Not Found');
+					header('Content-Type: text/plain; charset=UTF-8');
+					echo 'missing';
+					return;
+				}
+
+				if (!is_file($realPath) || !is_readable($realPath)) {
 					header('HTTP/1.1 404 Not Found');
 					header('Content-Type: text/plain; charset=UTF-8');
 					echo 'missing';
 					return;
 				}
 				header('Content-Type: application/octet-stream');
-				readfile($path);
+				readfile($realPath);
 				return;
 
 			default:
