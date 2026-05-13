@@ -1,8 +1,0 @@
-{
-	"name": "HttpDiagnostics",
-	"author": "HackRSS",
-	"description": "Optional HTTP diagnostics and legacy client compatibility helpers.",
-	"version": "1.0.0",
-	"entrypoint": "HttpDiagnostics",
-	"type": "system"
-}

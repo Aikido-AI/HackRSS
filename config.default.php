@@ -76,7 +76,7 @@ return [
 	# Allow or not the use of the API, used for mobile apps.
 	#	End-point is https://freshrss.example.net/api/greader.php
 	#	You need to set the user’s API password.
-	'api_enabled' => true,
+	'api_enabled' => false,
 
 	# By default, FreshRSS will display a warning to logged-in admin users if the CSP policy is insecure.
 	#	This setting can disable the warning.
@@ -222,7 +222,6 @@ return [
 
 	# List of enabled FreshRSS extensions.
 	'extensions_enabled' => [
-		'HttpDiagnostics' => true,
 	],
 	# Extensions configurations
 	'extensions' => [],
