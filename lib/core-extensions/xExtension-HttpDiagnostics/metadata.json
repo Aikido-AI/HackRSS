@@ -1,0 +1,8 @@
+{
+	"name": "HttpDiagnostics",
+	"author": "FreshRSS Contributors",
+	"description": "Connectivity and HTTP diagnostics helpers to troubleshoot feed subscription issues.",
+	"version": "1.0.0",
+	"entrypoint": "HttpDiagnostics",
+	"type": "system"
+}
