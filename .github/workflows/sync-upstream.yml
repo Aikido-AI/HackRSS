@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # Required when upstream changes include .github/workflows/*
+      workflows: write
     steps:
       - name: Sync upstream
         run: gh repo sync ${{ github.repository }} --source FreshRSS/FreshRSS --branch edge
