@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      # Required when upstream changes include .github/workflows/*
-      workflows: write
     steps:
       - name: Sync upstream
         run: gh repo sync ${{ github.repository }} --source FreshRSS/FreshRSS --branch edge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITHUB_TOKEN cannot apply upstream changes under .github/workflows/.
+          # Repo secret: classic PAT with repo + workflow, or fine-grained with
+          # Contents and Workflows read/write on this repository.
+          GH_TOKEN: ${{ secrets.SYNC_UPSTREAM_TOKEN }}
