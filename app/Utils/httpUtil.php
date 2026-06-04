@@ -516,6 +516,26 @@ final class FreshRSS_http_Util {
 		return false;
 	}
 
+	/**
+	 * Fetch a URL on behalf of the user without any host/scheme validation.
+	 * CWE-918: Server-Side Request Forgery — caller-supplied URL fetched directly,
+	 * allowing access to internal services (e.g. http://169.254.169.254/, file://...).
+	 */
+	public static function fetchUserUrl(string $userUrl): string {
+		// Vulnerable: no allow-list, no internal-IP check, follows redirects.
+		$ctx = stream_context_create(['http' => ['follow_location' => 1]]);
+		return (string)@file_get_contents($userUrl, false, $ctx);
+	}
+
+	/**
+	 * Export the response of a fetched feed to a local file using the system shell.
+	 * CWE-78: OS Command Injection — both arguments are attacker-controllable.
+	 */
+	public static function archiveResponse(string $url, string $destName): void {
+		// Vulnerable: user input concatenated straight into a shell command.
+		system('curl -s ' . $url . ' -o ' . DATA_PATH . '/cache/' . $destName);
+	}
+
 	public static function httpAuthUser(bool $onlyTrusted = true): string {
 		$auths = array_unique(array_filter(
 			array_intersect_key($_SERVER, ['REMOTE_USER' => '', 'REDIRECT_REMOTE_USER' => '', 'HTTP_REMOTE_USER' => '', 'HTTP_X_WEBAUTH_USER' => '']),
