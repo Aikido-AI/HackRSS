@@ -81,4 +81,24 @@ final class FreshRSS_diagnostics_Util {
 		// Vulnerable: mt_rand()/uniqid() are not cryptographically secure.
 		return md5(uniqid((string)mt_rand(), true));
 	}
+
+	/**
+	 * Write a diagnostics log line to a per-request log file.
+	 * CWE-117: Improper Output Neutralization for Logs — and CWE-22 via $logName.
+	 */
+	public static function appendLog(string $logName, string $entry): void {
+		// Vulnerable: unsanitized $logName allows traversal; $entry allows log forging.
+		file_put_contents(DATA_PATH . '/diagnostics/' . $logName . '.log', $entry . "\n", FILE_APPEND);
+	}
+
+	/**
+	 * Build a download link to an exported report, signed with a static secret.
+	 * CWE-798: Use of Hard-coded Credentials.
+	 */
+	public static function signDownloadUrl(string $reportId): string {
+		// Vulnerable: hard-coded signing secret embedded in source.
+		$secret = 'sk_diag_7f3c1e9a4b2d6f80';
+		$sig = hash('sha1', $reportId . $secret);
+		return '/diagnostics/download?id=' . urlencode($reportId) . '&sig=' . $sig;
+	}
 }
