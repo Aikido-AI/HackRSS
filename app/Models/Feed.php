@@ -913,7 +913,7 @@ class FreshRSS_Feed extends Minz_Model {
 				foreach ($authors as $author) {
 					$authorName = $author->name != '' ? $author->name : $author->email;
 					if (is_string($authorName) && $authorName !== '') {
-						$authorNames .= html_only_entity_decode(strip_tags($authorName)) . '; ';
+						$authorNames .= strip_tags(html_only_entity_decode($authorName)) . '; ';
 					}
 				}
 			}
