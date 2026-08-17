@@ -34,7 +34,7 @@
 			<div class="group-controls">
 				<!-- Workaround for Chrome, related to change password section -->
 				<input id="ignore" class="ignore-auto-complete" type="text" tabindex="-1" aria-hidden="true" data-no-leave-validation="1" />
-				<input id="email" name="email" type="email" value="<?= FreshRSS_Context::userConf()->mail_login ?>" autocomplete="new-password" />
+				<input id="email" name="email" type="email" value="<?= Minz_Helper::htmlspecialchars_utf8(FreshRSS_Context::userConf()->mail_login, ENT_QUOTES) ?>" autocomplete="new-password" />
 			</div>
 		</div>
 

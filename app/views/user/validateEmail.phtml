@@ -8,7 +8,7 @@
 	</p>
 
 	<p>
-		<?= _t('user.email.validation.email_sent_to', FreshRSS_Context::userConf()->mail_login) ?>
+		<?= _t('user.email.validation.email_sent_to', Minz_Helper::htmlspecialchars_utf8(FreshRSS_Context::userConf()->mail_login)) ?>
 	</p>
 
 	<form action="<?= _url('user', 'sendValidationEmail') ?>" method="post">
