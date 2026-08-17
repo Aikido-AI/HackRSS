@@ -111,7 +111,7 @@
 						<td class="username"><?= $username ?></td>
 						<td><?= $values['enabled'] ? '✔' : ' ' ?></td>
 						<td><?= $values['is_admin'] ? '✔' : ' ' ?></td>
-						<td><?= $values['mail_login'] ?></td>
+						<td><?= Minz_Helper::htmlspecialchars_utf8($values['mail_login']) ?></td>
 						<td><?= _t("gen.lang.{$values['language']}") ?></td>
 						<td class="feed-count"><?= is_numeric($values['feed_count']) ? format_number($values['feed_count']) : '?' ?></td>
 						<td class="article-count"><?= is_numeric($values['article_count']) ? format_number($values['article_count']) : '?' ?></td>
