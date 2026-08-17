@@ -843,6 +843,9 @@ class FreshRSS_Feed extends Minz_Model {
 			$attributeThumbnail = $item->get_thumbnail() ?? [];
 			if (empty($attributeThumbnail['url'])) {
 				$attributeThumbnail['url'] = '';
+			} else {
+				// Sanitize thumbnail URL
+				$attributeThumbnail['url'] = self::sanitizeEnclosureUrl($attributeThumbnail['url']);
 			}
 
 			$attributeEnclosures = [];
@@ -852,6 +855,12 @@ class FreshRSS_Feed extends Minz_Model {
 				foreach ($enclosures as $enclosure) {
 					$elink = $enclosure->get_link();
 					if ($elink != '') {
+						// Defense in depth: Validate and sanitize URL to prevent control characters and dangerous schemes
+						$elink = self::sanitizeEnclosureUrl($elink);
+						if ($elink === '') {
+							continue; // Skip invalid URLs
+						}
+
 						$etitle = $enclosure->get_title() ?? '';
 						$credits = $enclosure->get_credits() ?? null;
 						$description = $enclosure->get_description() ?? '';
@@ -894,7 +903,9 @@ class FreshRSS_Feed extends Minz_Model {
 
 						if (!empty($enclosure->get_thumbnails())) {
 							foreach ($enclosure->get_thumbnails() as $thumbnail) {
-								if ($thumbnail !== $attributeThumbnail['url']) {
+								// Sanitize thumbnail URLs as well
+								$thumbnail = self::sanitizeEnclosureUrl($thumbnail);
+								if ($thumbnail !== '' && $thumbnail !== $attributeThumbnail['url']) {
 									$attributeEnclosure['thumbnails'][] = $thumbnail;
 								}
 							}
@@ -1385,6 +1396,32 @@ class FreshRSS_Feed extends Minz_Model {
 		$hubHost  = parse_url($url1, PHP_URL_HOST);
 		$baseHost = parse_url($url2, PHP_URL_HOST);
 		return ($hubHost != null && $baseHost != null && strcasecmp($hubHost, $baseHost) === 0);
+	}
+
+	/**
+	 * Sanitize enclosure URLs to prevent XSS attacks.
+	 * Validates URL scheme and removes control characters that could break HTML attributes.
+	 * @return string The sanitized URL, or empty string if invalid
+	 */
+	private static function sanitizeEnclosureUrl(string $url): string {
+		$url = trim($url);
+		if ($url === '') {
+			return '';
+		}
+
+		// Remove control characters (0x00-0x1F, 0x7F) and quotes that could break HTML attributes
+		$url = preg_replace('/[\x00-\x1F\x7F"\'<>]/', '', $url);
+		if ($url === null || $url === '') {
+			return '';
+		}
+
+		// Validate URL scheme - only allow http, https, and data URIs
+		$scheme = parse_url($url, PHP_URL_SCHEME);
+		if ($scheme !== null && !in_array(strtolower($scheme), ['http', 'https', 'data'], true)) {
+			return '';
+		}
+
+		return $url;
 	}
 
 	public function pubSubHubbubPrepare(): string|false {
