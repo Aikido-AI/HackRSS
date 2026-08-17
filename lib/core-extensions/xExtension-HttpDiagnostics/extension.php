@@ -41,6 +41,57 @@ final class HttpDiagnosticsExtension extends Minz_Extension {
 	}
 
 	/**
+	 * Validate and sanitize a URL for connectivity checks.
+	 * Implements domain allowlisting to prevent SSRF attacks.
+	 *
+	 * @param string $userUrl The user-provided URL to validate
+	 * @return string The validated URL
+	 * @throws Exception if the URL is invalid or not allowed
+	 */
+	private static function validateUrl(string $userUrl): string {
+		try {
+			// Basic URL validation
+			$url = FreshRSS_http_Util::checkUrl($userUrl);
+			if ($url === false || $url === '') {
+				throw new Exception('Invalid URL');
+			}
+
+			// Parse the URL
+			$parsedUrl = parse_url($url);
+			if ($parsedUrl === false || !isset($parsedUrl['scheme']) || !isset($parsedUrl['host'])) {
+				throw new Exception('Invalid URL');
+			}
+
+			// Validate protocol (only http and https allowed)
+			$scheme = strtolower($parsedUrl['scheme']);
+			if ($scheme !== 'http' && $scheme !== 'https') {
+				throw new Exception('Invalid URL');
+			}
+
+			// Domain allowlist - SSRF protection
+			const allowedDomains = ['example.com']; // add your allowed domains here
+			$host = strtolower($parsedUrl['host']);
+
+			// Check if the host matches any allowed domain (exact match only)
+			$isAllowed = false;
+			foreach (allowedDomains as $allowedDomain) {
+				if ($host === strtolower($allowedDomain)) {
+					$isAllowed = true;
+					break;
+				}
+			}
+
+			if (!$isAllowed) {
+				throw new Exception('Invalid URL');
+			}
+
+			return $url;
+		} catch (Exception $e) {
+			throw new Exception('Invalid URL');
+		}
+	}
+
+	/**
 	 * Connectivity check: fetch a target URL and report the HTTP status, the
 	 * final (post-redirect) URL, the response headers and a short body preview,
 	 * so an admin can troubleshoot feeds that fail to subscribe.
@@ -48,15 +99,10 @@ final class HttpDiagnosticsExtension extends Minz_Extension {
 	private static function handleConnectivity(): void {
 		$target = isset($_GET['url']) && is_string($_GET['url']) ? trim($_GET['url']) : '';
 
-		$url = FreshRSS_http_Util::checkUrl($target);
-		if ($url === false || $url === '') {
+		try {
+			$url = self::validateUrl($target);
+		} catch (Exception $e) {
 			self::jsonResponse(['error' => 'invalid url'], 400);
-			return;
-		}
-
-		// Keep the diagnostics endpoint away from internal/private hosts.
-		if (!Minz_Request::serverIsPublic($url)) {
-			self::jsonResponse(['error' => 'refused: non-public host'], 403);
 			return;
 		}
 
@@ -70,8 +116,7 @@ final class HttpDiagnosticsExtension extends Minz_Extension {
 		curl_setopt_array($ch, [
 			CURLOPT_URL => $url,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_MAXREDIRS => 5,
+			CURLOPT_FOLLOWLOCATION => false,
 			CURLOPT_CONNECTTIMEOUT => 5,
 			CURLOPT_TIMEOUT => 10,
 			CURLOPT_USERAGENT => FRESHRSS_USERAGENT,
