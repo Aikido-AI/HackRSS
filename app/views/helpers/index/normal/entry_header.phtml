@@ -25,7 +25,7 @@
 	if ($this->feed === null || $this->entry === null) {
 		return;
 	}
-?><ul class="<?= implode(' ', $headerClasses) ?>" data-website-name="<?= $this->feed->name() ?>" data-article-authors="<?= implode(' · ', $this->entry->authors()) ?>"><?php
+?><ul class="<?= implode(' ', $headerClasses) ?>" data-website-name="<?= $this->feed->name() ?>" data-article-authors="<?= Minz_Helper::htmlspecialchars_utf8(implode(' · ', $this->entry->authors())) ?>"><?php
 	if (FreshRSS_Auth::hasAccess()) {
 		if ($topline_read) {
 			?><li class="item manage"><?php
@@ -67,9 +67,9 @@
 	?></li><?php
 	endif; ?>
 	<li class="item titleAuthorSummaryDate">
-		<a target="_blank" rel="noreferrer" href="<?= $this->entry->link() ?>" class="item-element title" dir="auto"><?= $this->entry->title() ?><?php
+		<a target="_blank" rel="noreferrer" href="<?= $this->entry->link() ?>" class="item-element title" dir="auto"><?= Minz_Helper::htmlspecialchars_utf8($this->entry->title()) ?><?php
 		if ($topline_display_authors):
-			?> <span class="author"><?= implode(' · ', $this->entry->authors()) ?></span><?php
+			?> <span class="author"><?= Minz_Helper::htmlspecialchars_utf8(implode(' · ', $this->entry->authors())) ?></span><?php
 		endif;
 		?></a>
 	<?php
