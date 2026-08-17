@@ -16,6 +16,100 @@ require LIB_PATH . '/lib_install.php';
 
 Minz_Session::init('FreshRSS');
 
+// Setup token security: Generate a one-time token for the installer
+// This prevents unauthorized users from completing the installation
+$setup_token_file = DATA_PATH . '/setup_token.txt';
+$setup_token = '';
+
+// Generate token on first access (step 0 without token)
+if (!file_exists($setup_token_file)) {
+	// Only generate token if this is the initial access (no step or step 0 without POST)
+	if (!isset($_GET['step']) || ($_GET['step'] === '0' && empty($_POST))) {
+		$setup_token = bin2hex(random_bytes(32));
+		if (@file_put_contents($setup_token_file, $setup_token) === false) {
+			header('HTTP/1.1 500 Internal Server Error');
+			exit('Error: Cannot create setup token file. Please ensure ' . DATA_PATH . ' is writable.');
+		}
+		@chmod($setup_token_file, 0600);
+		// Display the token to the user
+		header('Content-Type: text/html; charset=UTF-8');
+		echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FreshRSS Installation - Setup Token</title>';
+		echo '<style>body{font-family:sans-serif;max-width:800px;margin:50px auto;padding:20px;line-height:1.6}';
+		echo '.token{background:#f0f0f0;padding:15px;border:2px solid #333;font-family:monospace;font-size:18px;word-break:break-all;margin:20px 0}';
+		echo '.warning{background:#fff3cd;border:1px solid #ffc107;padding:15px;margin:20px 0;border-radius:4px}';
+		echo 'a.button{display:inline-block;background:#007bff;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;margin-top:20px}';
+		echo 'a.button:hover{background:#0056b3}</style></head><body>';
+		echo '<h1>FreshRSS Installation - Setup Token Required</h1>';
+		echo '<div class="warning"><strong>⚠️ Security Notice:</strong> To prevent unauthorized installation, ';
+		echo 'FreshRSS requires a one-time setup token.</div>';
+		echo '<p>Your setup token has been generated. Please save it securely - you will need it to complete the installation:</p>';
+		echo '<div class="token">' . htmlspecialchars($setup_token, ENT_QUOTES, 'UTF-8') . '</div>';
+		echo '<p><strong>Important:</strong></p><ul>';
+		echo '<li>This token is stored in: <code>' . htmlspecialchars($setup_token_file, ENT_QUOTES, 'UTF-8') . '</code></li>';
+		echo '<li>Keep this token secret and do not share it</li>';
+		echo '<li>You will need to provide this token to proceed with installation</li>';
+		echo '<li>The token will be automatically deleted after successful installation</li>';
+		echo '</ul>';
+		echo '<a href="?step=0" class="button">Continue to Installation</a>';
+		echo '</body></html>';
+		exit();
+	} else {
+		// Trying to access installer without token file
+		header('HTTP/1.1 403 Forbidden');
+		header('Content-Type: text/html; charset=UTF-8');
+		echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FreshRSS Installation - Access Denied</title>';
+		echo '<style>body{font-family:sans-serif;max-width:800px;margin:50px auto;padding:20px}';
+		echo '.error{background:#f8d7da;border:1px solid #f5c6cb;padding:15px;border-radius:4px;color:#721c24}</style></head><body>';
+		echo '<h1>Access Denied</h1>';
+		echo '<div class="error">Setup token not found. Please start the installation from the beginning by accessing the installer without any parameters.</div>';
+		echo '</body></html>';
+		exit();
+	}
+}
+
+// Validate setup token for all requests
+$setup_token = trim((string)@file_get_contents($setup_token_file));
+if ($setup_token === '') {
+	header('HTTP/1.1 403 Forbidden');
+	exit('Error: Invalid setup token file.');
+}
+
+// Check if token is provided in request (except for initial step 0 GET)
+$provided_token = '';
+if (isset($_POST['setup_token']) && is_string($_POST['setup_token'])) {
+	$provided_token = trim($_POST['setup_token']);
+	Minz_Session::_param('setup_token_validated', $provided_token === $setup_token);
+} elseif (isset($_GET['token']) && is_string($_GET['token'])) {
+	$provided_token = trim($_GET['token']);
+	Minz_Session::_param('setup_token_validated', $provided_token === $setup_token);
+}
+
+// Verify token is validated in session (except for initial step 0 GET)
+$current_step = isset($_GET['step']) && is_numeric($_GET['step']) ? (int)$_GET['step'] : 0;
+$is_initial_step0 = ($current_step === 0 && empty($_POST));
+
+if (!$is_initial_step0 && Minz_Session::paramString('setup_token_validated') !== '1') {
+	header('HTTP/1.1 403 Forbidden');
+	header('Content-Type: text/html; charset=UTF-8');
+	echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FreshRSS Installation - Token Required</title>';
+	echo '<style>body{font-family:sans-serif;max-width:800px;margin:50px auto;padding:20px}';
+	echo '.error{background:#f8d7da;border:1px solid #f5c6cb;padding:15px;border-radius:4px;color:#721c24;margin:20px 0}';
+	echo 'form{margin:20px 0}input[type=text]{width:100%;padding:10px;font-family:monospace;font-size:14px;margin:10px 0}';
+	echo 'button{background:#007bff;color:white;padding:10px 20px;border:none;border-radius:4px;cursor:pointer;font-size:16px}';
+	echo 'button:hover{background:#0056b3}</style></head><body>';
+	echo '<h1>FreshRSS Installation - Setup Token Required</h1>';
+	echo '<div class="error"><strong>Access Denied:</strong> You must provide the setup token to continue.</div>';
+	echo '<p>Please enter the setup token that was displayed when you first accessed the installer:</p>';
+	echo '<form method="GET" action="index.php">';
+	echo '<input type="hidden" name="step" value="0">';
+	echo '<input type="text" name="token" placeholder="Enter your setup token" required autofocus>';
+	echo '<button type="submit">Validate Token</button>';
+	echo '</form>';
+	echo '<p><small>The token is stored in: <code>' . htmlspecialchars($setup_token_file, ENT_QUOTES, 'UTF-8') . '</code></small></p>';
+	echo '</body></html>';
+	exit();
+}
+
 if (isset($_GET['step']) && is_numeric($_GET['step'])) {
 	define('STEP', (int)$_GET['step']);
 } else {
@@ -28,6 +122,19 @@ if (STEP === 2 && isset($_POST['type'])) {
 
 function param(string $key, string $default = ''): string {
 	return isset($_POST[$key]) && is_string($_POST[$key]) ? trim($_POST[$key]) : $default;
+}
+
+/**
+ * Output hidden setup token field for forms
+ */
+function setup_token_field(): void {
+	$setup_token_file = DATA_PATH . '/setup_token.txt';
+	if (file_exists($setup_token_file)) {
+		$token = trim((string)@file_get_contents($setup_token_file));
+		if ($token !== '') {
+			echo '<input type="hidden" name="setup_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+		}
+	}
 }
 
 // gestion internationalisation
@@ -411,6 +518,7 @@ function printStep0(): void {
 
 	<h2><?= _t('install.language.choose') ?></h2>
 	<form action="index.php?step=0" method="post">
+		<?php setup_token_field(); ?>
 		<div class="form-group">
 			<label class="group-name" for="language"><?= _t('install.language') ?></label>
 			<div class="group-controls">
@@ -514,6 +622,7 @@ function printStep1(): void {
 	<div class="form-group form-actions">
 		<div class="group-controls">
 			<form action="index.php?step=1" method="post">
+				<?php setup_token_field(); ?>
 				<input type="hidden" name="freshrss-keep-install" value="1" />
 				<button type="submit" class="btn btn-important" tabindex="1"><?= _t('install.action.keep_install') ?></button>
 				<a class="btn btn-attention confirm" data-str-confirm="<?= _t('install.js.confirm_reinstall') ?>"
@@ -557,6 +666,7 @@ function printStep2(): void {
 
 	<h2><?= _t('install.bdd.conf') ?></h2>
 	<form action="index.php?step=2" method="post" autocomplete="off">
+		<?php setup_token_field(); ?>
 		<div class="form-group">
 			<label class="group-name" for="type"><?= _t('install.bdd.type') ?></label>
 			<div class="group-controls">
@@ -665,6 +775,7 @@ function printStep3(): void {
 
 	<h2><?= _t('install.conf') ?></h2>
 	<form action="index.php?step=3" method="post">
+		<?php setup_token_field(); ?>
 		<div class="form-group">
 			<label class="group-name" for="default_user"><?= _t('install.default_user') ?></label>
 			<div class="group-controls">
@@ -718,8 +829,17 @@ function printStep3(): void {
 
 /* congrats. Installation successful completed */
 function printStep4(): void {
+	$setup_token_file = DATA_PATH . '/setup_token.txt';
+	$token_exists = file_exists($setup_token_file);
 ?>
 	<p class="alert alert-success"><span class="alert-head"><?= _t('install.congratulations') ?></span> <?= _t('install.ok') ?></p>
+	<?php if ($token_exists) { ?>
+	<p class="alert alert-warn">
+		<span class="alert-head">🔒 Security:</span> 
+		The setup token will be automatically deleted when you click "Finish" below. 
+		After that, the installer will no longer be accessible.
+	</p>
+	<?php } ?>
 	<div class="form-group form-actions">
 		<div class="group-controls">
 			<a class="btn btn-important" href="?step=5" tabindex="1"><?= _t('install.action.finish') ?></a>

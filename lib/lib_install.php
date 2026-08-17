@@ -165,5 +165,15 @@ function setupMigrations(): bool {
 
 	$migrator = new Minz_Migrator($migrations_path);
 	$versions = implode("\n", $migrator->versions());
-	return @file_put_contents($migrations_version_path, $versions) !== false;
+	$success = @file_put_contents($migrations_version_path, $versions) !== false;
+	
+	// Delete the setup token file after successful installation
+	if ($success) {
+		$setup_token_file = DATA_PATH . '/setup_token.txt';
+		if (file_exists($setup_token_file)) {
+			@unlink($setup_token_file);
+		}
+	}
+	
+	return $success;
 }
