@@ -15,6 +15,7 @@ Before you begin, make sure that you’ve read the [prerequisites](02_Prerequisi
 5. Create a database for FreshRSS to use. Note the username and password for this database, as it will be needed during installation!
 
 6. Using your supported web browser of choice, navigate to the address you’ve installed your server to complete the installation from the GUI.[^3]
+	* **Security Note:** When you first access the web installer, FreshRSS will generate a one-time setup token to prevent unauthorized installation. This token will be displayed on the first page and must be provided to proceed with the installation. The token is stored in `./data/setup_token.txt` and will be automatically deleted after successful installation. If you lose the token, you can retrieve it from that file or delete the file to generate a new one.
 
 7. In configuration files, you can customize advanced settings:
 	* [the configuration of your instance](https://github.com/FreshRSS/FreshRSS/blob/edge/config.default.php#L3-L5) in `./data/config.custom.php` before the install process, or in `./data/config.php` after the install process;
