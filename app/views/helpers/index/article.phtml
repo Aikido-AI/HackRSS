@@ -55,7 +55,7 @@
 					$this->renderHelper('index/tags');
 				}
 			?>
-			<h1 class="title"><a target="_blank" rel="noreferrer" class="go_website" href="<?= $entry->link() ?>"><?= $entry->title() ?></a></h1>
+			<h1 class="title"><a target="_blank" rel="noreferrer" class="go_website" href="<?= $entry->link() ?>"><?= Minz_Helper::htmlspecialchars_utf8($entry->title()) ?></a></h1>
 			<?php if (in_array(FreshRSS_Context::userConf()->show_author_date, ['h','b'], true)) { ?>
 				<div class="subtitle horizontal-list">
 					<?php if (FreshRSS_Auth::hasAccess()) { ?>

@@ -30,13 +30,13 @@ foreach ($this->entries as $item) {
 	}
 ?>
 		<item>
-			<title><?= $item->title() ?></title>
+			<title><?= htmlspecialchars($item->title(), ENT_XML1, 'UTF-8') ?></title>
 			<link><?= $item->link() ?></link>
 			<?php
 				$authors = $item->authors();
 				if (is_array($authors)) {
 					foreach ($authors as $author) {
-						echo "\t\t\t", '<dc:creator>', $author, '</dc:creator>', "\n";
+						echo "\t\t\t", '<dc:creator>', htmlspecialchars($author, ENT_XML1, 'UTF-8'), '</dc:creator>', "\n";
 					}
 				}
 
@@ -44,14 +44,14 @@ foreach ($this->entries as $item) {
 					$categories = $this->entryIdsTagNames['e_' . $item->id()] ?? [];
 					if (is_array($categories)) {
 						foreach ($categories as $category) {
-							echo "\t\t\t", '<category>', $category, '</category>', "\n";
+							echo "\t\t\t", '<category>', htmlspecialchars($category, ENT_XML1, 'UTF-8'), '</category>', "\n";
 						}
 					}
 				} else {
 					$categories = $item->tags();
 					if (is_array($categories)) {
 						foreach ($categories as $category) {
-							echo "\t\t\t", '<category>', $category, '</category>', "\n";
+							echo "\t\t\t", '<category>', htmlspecialchars($category, ENT_XML1, 'UTF-8'), '</category>', "\n";
 						}
 					}
 				}
