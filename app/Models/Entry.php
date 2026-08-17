@@ -255,7 +255,7 @@ class FreshRSS_Entry extends Minz_Model {
 				continue;
 			}
 			$credits = $enclosure['credit'] ?? '';
-			$description = is_string($enclosure['description'] ?? null) ? nl2br($enclosure['description'], true) : '';
+			$description = is_string($enclosure['description'] ?? null) ? nl2br(htmlspecialchars($enclosure['description'], ENT_COMPAT, 'UTF-8'), true) : '';
 			$length = is_numeric($enclosure['length'] ?? null) ? (int)$enclosure['length'] : 0;
 			$medium = is_string($enclosure['medium'] ?? null) ? $enclosure['medium'] : '';
 			$mime = is_string($enclosure['type'] ?? null) ? $enclosure['type'] : '';
@@ -263,31 +263,31 @@ class FreshRSS_Entry extends Minz_Model {
 			if (!is_array($thumbnails)) {
 				$thumbnails = [];
 			}
-			$etitle = is_string($enclosure['title'] ?? null) ? $enclosure['title'] : '';
+			$etitle = is_string($enclosure['title'] ?? null) ? htmlspecialchars($enclosure['title'], ENT_COMPAT, 'UTF-8') : '';
 
 			$content .= "\n";
 			$content .= '<figure class="enclosure">';
 
 			foreach ($thumbnails as $thumbnail) {
 				if (is_string($thumbnail)) {
-					$content .= '<p><img class="enclosure-thumbnail" src="' . $thumbnail . '" alt="" title="' . $etitle . '" /></p>';
+					$content .= '<p><img class="enclosure-thumbnail" src="' . htmlspecialchars($thumbnail, ENT_COMPAT, 'UTF-8') . '" alt="" title="' . $etitle . '" /></p>';
 				}
 			}
 
 			if (self::enclosureIsImage(['url' => $elink, 'length' => $length, 'medium' => $medium, 'type' => $mime])) {
-				$content .= '<p class="enclosure-content"><img src="' . $elink . '" alt="" title="' . $etitle . '" /></p>';
+				$content .= '<p class="enclosure-content"><img src="' . htmlspecialchars($elink, ENT_COMPAT, 'UTF-8') . '" alt="" title="' . $etitle . '" /></p>';
 			} elseif ($medium === 'audio' || str_starts_with($mime, 'audio')) {
-				$content .= '<p class="enclosure-content"><audio preload="none" src="' . $elink
+				$content .= '<p class="enclosure-content"><audio preload="none" src="' . htmlspecialchars($elink, ENT_COMPAT, 'UTF-8')
 					. ($length == null ? '' : '" data-length="' . $length)
 					. ($mime == '' ? '' : '" data-type="' . htmlspecialchars($mime, ENT_COMPAT, 'UTF-8'))
-					. '" controls="controls" title="' . $etitle . '"></audio> <a download="" href="' . $elink . '">💾</a></p>';
+					. '" controls="controls" title="' . $etitle . '"></audio> <a download="" href="' . htmlspecialchars($elink, ENT_COMPAT, 'UTF-8') . '">💾</a></p>';
 			} elseif ($medium === 'video' || str_starts_with($mime, 'video')) {
-				$content .= '<p class="enclosure-content"><video preload="none" src="' . $elink
+				$content .= '<p class="enclosure-content"><video preload="none" src="' . htmlspecialchars($elink, ENT_COMPAT, 'UTF-8')
 					. ($length == null ? '' : '" data-length="' . $length)
 					. ($mime == '' ? '' : '" data-type="' . htmlspecialchars($mime, ENT_COMPAT, 'UTF-8'))
-					. '" controls="controls" title="' . $etitle . '"></video> <a download="" href="' . $elink . '">💾</a></p>';
+					. '" controls="controls" title="' . $etitle . '"></video> <a download="" href="' . htmlspecialchars($elink, ENT_COMPAT, 'UTF-8') . '">💾</a></p>';
 			} else {	//e.g. application, text, unknown
-				$content .= '<p class="enclosure-content"><a download="" href="' . $elink
+				$content .= '<p class="enclosure-content"><a download="" href="' . htmlspecialchars($elink, ENT_COMPAT, 'UTF-8')
 					. ($mime == '' ? '' : '" data-type="' . htmlspecialchars($mime, ENT_COMPAT, 'UTF-8'))
 					. ($medium == '' ? '' : '" data-medium="' . htmlspecialchars($medium, ENT_COMPAT, 'UTF-8'))
 					. '" title="' . $etitle . '">💾</a></p>';
@@ -299,7 +299,7 @@ class FreshRSS_Entry extends Minz_Model {
 				}
 				foreach ($credits as $credit) {
 					if (is_string($credit)) {
-						$content .= '<p class="enclosure-credits">© ' . $credit . '</p>';
+						$content .= '<p class="enclosure-credits">© ' . htmlspecialchars($credit, ENT_COMPAT, 'UTF-8') . '</p>';
 					}
 				}
 			}
