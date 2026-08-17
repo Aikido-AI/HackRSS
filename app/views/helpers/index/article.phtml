@@ -39,7 +39,7 @@
 						<a class="website" href="<?= _url('index', 'reader', 'get', 'f_' . $feed->id()) ?>" title="<?= _t('gen.action.filter') ?>">
 							<?php if (FreshRSS_Context::userConf()->show_favicons): ?>
 								<img class="favicon" src="<?= $feed->favicon() ?>" alt="✇" loading="lazy" /><?php
-							endif; ?><span><?= $feed->name() ?></span></a>
+							endif; ?><span><?= htmlspecialchars($feed->name(), ENT_NOQUOTES, 'UTF-8') ?></span></a>
 					<?php } ?>
 				</div>
 				<?php
@@ -55,7 +55,7 @@
 					$this->renderHelper('index/tags');
 				}
 			?>
-			<h1 class="title"><a target="_blank" rel="noreferrer" class="go_website" href="<?= $entry->link() ?>"><?= $entry->title() ?></a></h1>
+			<h1 class="title"><a target="_blank" rel="noreferrer" class="go_website" href="<?= $entry->link() ?>"><?= htmlspecialchars($entry->title(), ENT_NOQUOTES, 'UTF-8') ?></a></h1>
 			<?php if (in_array(FreshRSS_Context::userConf()->show_author_date, ['h','b'], true)) { ?>
 				<div class="subtitle horizontal-list">
 					<?php if (FreshRSS_Auth::hasAccess()) { ?>
@@ -75,7 +75,7 @@
 							<span class="website"><a href="<?= $this->internal_rendering ? $feed->website() : _url('index', 'reader', 'get', 'f_' . $feed->id()) ?>" title="<?= _t('gen.action.filter') ?>">
 								<?php if (FreshRSS_Context::userConf()->show_favicons): ?>
 									<img class="favicon" src="<?= $feed->favicon() ?>" alt="✇" loading="lazy" /><?php
-								endif; ?><span><?= $feed->name() ?></span></a></span>
+								endif; ?><span><?= htmlspecialchars($feed->name(), ENT_NOQUOTES, 'UTF-8') ?></span></a></span>
 						<?php }
 							if (!empty($entry->authors())) {
 								$this->renderHelper('index/authors');
@@ -114,7 +114,7 @@
 							<div class="website"><a href="<?= _url('index', 'reader', 'get', 'f_' . $feed->id()) ?>" title="<?= _t('gen.action.filter') ?>">
 								<?php if (FreshRSS_Context::userConf()->show_favicons): ?>
 									<img class="favicon" src="<?= $feed->favicon() ?>" alt="✇" loading="lazy" /><?php
-								endif; ?><span><?= $feed->name() ?></span></a></div>
+								endif; ?><span><?= htmlspecialchars($feed->name(), ENT_NOQUOTES, 'UTF-8') ?></span></a></div>
 						<?php }
 							$this->renderHelper('index/authors');
 						?>

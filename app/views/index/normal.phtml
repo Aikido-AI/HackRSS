@@ -97,7 +97,7 @@ $today = @strtotime('today');
 						<div class="website"><a href="<?= _url('index', 'index', 'get', 'f_' . $this->feed->id()) ?>" title="<?= _t('gen.action.filter') ?>">
 							<?php if (FreshRSS_Context::userConf()->show_favicons): ?>
 								<img class="favicon" src="<?= $this->feed->favicon() ?>" alt="✇" loading="lazy" /><?php
-							endif; ?><span><?= $this->feed->name() ?></span></a>
+							endif; ?><span><?= htmlspecialchars($this->feed->name(), ENT_NOQUOTES, 'UTF-8') ?></span></a>
 						</div>
 					<?php } ?>
 					<?php if (FreshRSS_Context::userConf()->show_tags === 'h' || FreshRSS_Context::userConf()->show_tags === 'b') {
@@ -106,14 +106,14 @@ $today = @strtotime('today');
 							throw new Exception('Unexpected side effect!');	// Should never occur. Only for PHPStan
 						}
 					} ?>
-					<h1 class="title"><a target="_blank" rel="noreferrer" class="go_website" href="<?= $this->entry->link() ?>" title="<?= _t('conf.shortcut.see_on_website')?>"><?= $this->entry->title() ?></a></h1>
+					<h1 class="title"><a target="_blank" rel="noreferrer" class="go_website" href="<?= $this->entry->link() ?>" title="<?= _t('conf.shortcut.see_on_website')?>"><?= htmlspecialchars($this->entry->title(), ENT_NOQUOTES, 'UTF-8') ?></a></h1>
 					<?php if (FreshRSS_Context::userConf()->show_author_date === 'h' || FreshRSS_Context::userConf()->show_author_date === 'b') { ?>
 					<div class="subtitle">
 						<?php if (FreshRSS_Context::userConf()->show_feed_name === 'a') { ?>
 							<div class="website"><a href="<?= _url('index', 'index', 'get', 'f_' . $this->feed->id()) ?>" title="<?= _t('gen.action.filter') ?>">
 								<?php if (FreshRSS_Context::userConf()->show_favicons): ?>
 									<img class="favicon" src="<?= $this->feed->favicon() ?>" alt="✇" loading="lazy" /><?php
-								endif; ?><span><?= $this->feed->name() ?></span></a>
+								endif; ?><span><?= htmlspecialchars($this->feed->name(), ENT_NOQUOTES, 'UTF-8') ?></span></a>
 							</div>
 						<?php }
 						if (!empty($this->entry->authors())) {
