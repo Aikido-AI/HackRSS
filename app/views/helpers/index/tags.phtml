@@ -12,12 +12,12 @@
 	<?php if (Minz_Request::controllerName() === 'index'): ?>
 		<?php foreach ($firstTags as $tag): ?>
 		<li class="item tag"><a class="link-tag" href="<?= _url('index', 'index', 'search', '#' .
-			FreshRSS_tag_Controller::escapeForSearch($tag)) ?>" title="<?= _t('gen.action.filter') ?>">#<?= $tag ?></a></li>
+			FreshRSS_tag_Controller::escapeForSearch($tag)) ?>" title="<?= _t('gen.action.filter') ?>">#<?= htmlspecialchars($tag, ENT_NOQUOTES, 'UTF-8') ?></a></li>
 		<?php endforeach; ?>
 	<?php else: // API public access ?>
 		<?php foreach ($firstTags as $tag): ?>
 		<li class="item tag"><a class="link-tag" href="<?= $this->html_url . '&search=' .
-			urlencode('#' . FreshRSS_tag_Controller::escapeForSearch($tag)) ?>" title="<?= _t('gen.action.filter') ?>">#<?= $tag ?></a></li>
+			urlencode('#' . FreshRSS_tag_Controller::escapeForSearch($tag)) ?>" title="<?= _t('gen.action.filter') ?>">#<?= htmlspecialchars($tag, ENT_NOQUOTES, 'UTF-8') ?></a></li>
 		<?php endforeach; ?>
 	<?php endif; ?>
 
@@ -32,12 +32,12 @@
 					<?php if (Minz_Request::controllerName() === 'index'): ?>
 						<?php foreach ($remainingTags as $tag): ?>
 						<li class="item"><a href="<?= _url('index', 'index', 'search', '#' .
-							FreshRSS_tag_Controller::escapeForSearch($tag)) ?>" title="<?= _t('gen.action.filter') ?>">#<?= $tag ?></a></li>
+							FreshRSS_tag_Controller::escapeForSearch($tag)) ?>" title="<?= _t('gen.action.filter') ?>">#<?= htmlspecialchars($tag, ENT_NOQUOTES, 'UTF-8') ?></a></li>
 						<?php endforeach; ?>
 					<?php else: // API public access ?>
 						<?php foreach ($remainingTags as $tag): ?>
 						<li class="item tag"><a class="link-tag" href="<?= $this->html_url . '&search=' .
-							urlencode('#' . FreshRSS_tag_Controller::escapeForSearch($tag)) ?>" title="<?= _t('gen.action.filter') ?>">#<?= $tag ?></a></li>
+							urlencode('#' . FreshRSS_tag_Controller::escapeForSearch($tag)) ?>" title="<?= _t('gen.action.filter') ?>">#<?= htmlspecialchars($tag, ENT_NOQUOTES, 'UTF-8') ?></a></li>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</ul>
