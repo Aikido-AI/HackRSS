@@ -3,7 +3,7 @@
 * Read this document on [github.com/FreshRSS/FreshRSS/](https://github.com/FreshRSS/FreshRSS/blob/edge/README.md) to get the correct links and pictures.
 * [Version française](README.fr.md)
 
-# FreshRSS
+# FreshRSS test
 
 FreshRSS is a self-hosted RSS feed aggregator.
 
