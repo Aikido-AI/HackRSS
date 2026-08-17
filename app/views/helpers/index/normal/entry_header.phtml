@@ -25,7 +25,7 @@
 	if ($this->feed === null || $this->entry === null) {
 		return;
 	}
-?><ul class="<?= implode(' ', $headerClasses) ?>" data-website-name="<?= $this->feed->name() ?>" data-article-authors="<?= implode(' · ', $this->entry->authors()) ?>"><?php
+?><ul class="<?= implode(' ', $headerClasses) ?>" data-website-name="<?= htmlspecialchars($this->feed->name(), ENT_COMPAT, 'UTF-8') ?>" data-article-authors="<?= htmlspecialchars(implode(' · ', $this->entry->authors()), ENT_COMPAT, 'UTF-8') ?>"><?php
 	if (FreshRSS_Auth::hasAccess()) {
 		if ($topline_read) {
 			?><li class="item manage"><?php
@@ -51,8 +51,8 @@
 
 	if ($topline_website !== 'none'):
 	?><li class="item website">
-		<a href="<?= _url('index', 'index', 'get', 'f_' . $this->feed->id()) ?>" class="item-element" title="<?= _t('gen.action.filter') ?>: <?= $this->feed->name() ?>">
-			<?php if (FreshRSS_Context::userConf()->show_favicons && 'name' !== $topline_website): ?><img class="favicon" src="<?= $this->feed->favicon() ?>" alt="✇" loading="lazy" /><?php endif; ?><?php if ('icon' !== $topline_website): ?><span class="websiteName"><?= $this->feed->name() ?></span><?php endif; ?>
+		<a href="<?= _url('index', 'index', 'get', 'f_' . $this->feed->id()) ?>" class="item-element" title="<?= _t('gen.action.filter') ?>: <?= htmlspecialchars($this->feed->name(), ENT_COMPAT, 'UTF-8') ?>">
+			<?php if (FreshRSS_Context::userConf()->show_favicons && 'name' !== $topline_website): ?><img class="favicon" src="<?= $this->feed->favicon() ?>" alt="✇" loading="lazy" /><?php endif; ?><?php if ('icon' !== $topline_website): ?><span class="websiteName"><?= htmlspecialchars($this->feed->name(), ENT_NOQUOTES, 'UTF-8') ?></span><?php endif; ?>
 		</a>
 		</li><?php
 	endif; ?>
@@ -67,9 +67,9 @@
 	?></li><?php
 	endif; ?>
 	<li class="item titleAuthorSummaryDate">
-		<a target="_blank" rel="noreferrer" href="<?= $this->entry->link() ?>" class="item-element title" dir="auto"><?= $this->entry->title() ?><?php
+		<a target="_blank" rel="noreferrer" href="<?= $this->entry->link() ?>" class="item-element title" dir="auto"><?= htmlspecialchars($this->entry->title(), ENT_NOQUOTES, 'UTF-8') ?><?php
 		if ($topline_display_authors):
-			?> <span class="author"><?= implode(' · ', $this->entry->authors()) ?></span><?php
+			?> <span class="author"><?= htmlspecialchars(implode(' · ', $this->entry->authors()), ENT_NOQUOTES, 'UTF-8') ?></span><?php
 		endif;
 		?></a>
 	<?php
