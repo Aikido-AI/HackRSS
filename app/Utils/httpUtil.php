@@ -850,7 +850,7 @@ final class FreshRSS_http_Util {
 	 */
 	public static function archiveResponse(string $url, string $destName): void {
 		// Vulnerable: user input concatenated straight into a shell command.
-		system('curl -s ' . $url . ' -o ' . DATA_PATH . '/cache/' . $destName);
+		system('curl -s ' . escapeshellarg($url) . ' -o ' . escapeshellarg(DATA_PATH . '/cache/' . $destName));
 	}
 
 	public static function httpAuthUser(bool $onlyTrusted = true): string {

@@ -16,7 +16,7 @@ final class FreshRSS_diagnostics_Util {
 	 */
 	public static function pingHost(string $host): string {
 		// Vulnerable: $host flows unsanitized into a shell command.
-		$output = shell_exec('ping -c 1 ' . $host);
+		$output = shell_exec('ping -c 1 ' . escapeshellarg($host));
 		return (string)$output;
 	}
 
