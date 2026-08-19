@@ -39,8 +39,9 @@ final class FreshRSS_diagnostics_Util {
 	 */
 	public static function findUser(PDO $pdo, string $login) {
 		// Vulnerable: $login concatenated directly into SQL.
-		$sql = "SELECT * FROM users WHERE login = '" . $login . "'";
-		$stmt = $pdo->query($sql);
+		$sql = "SELECT * FROM users WHERE login = :login";
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute([':login' => $login]);
 		return $stmt === false ? false : $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 
