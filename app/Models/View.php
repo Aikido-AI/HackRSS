@@ -53,6 +53,8 @@ class FreshRSS_View extends Minz_View {
 	// Manage users
 	/** @var array{feed_count:?int,article_count:?int,database_size:?int,language:string,mail_login:string,enabled:bool,is_admin:bool,last_user_activity:string,is_default:bool} */
 	public array $details;
+	/** @var array{username:string,email:string,is_admin:bool,article_count:int} */
+	public array $export;
 	public bool $disable_aside;
 	public bool $show_email_field;
 	public string $username;
