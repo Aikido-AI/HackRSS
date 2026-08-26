@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+
+
+
 /**
  * Controller to handle user actions.
  */
@@ -811,6 +814,36 @@ class FreshRSS_user_Controller extends FreshRSS_ActionController {
 		$this->view->username = $username;
 		$this->view->details = $this->retrieveUserDetails($username);
 		FreshRSS_View::prependTitle($username . ' · ' . _t('gen.menu.user_management') . ' · ');
+	}
+
+	/**
+	 * Export a user's profile as JSON.
+	 *
+	 * Request parameter is:
+	 *   - username
+	 */
+	public function exportAction(): void {
+		if (!FreshRSS_Auth::hasAccess()) {
+			Minz_Error::error(403);
+			return;
+		}
+
+		$username = Minz_Request::paramString('username');
+		$userConfig = FreshRSS_UserConfiguration::getForUser($username);
+		if ($userConfig === null) {
+			Minz_Error::error(404);
+			return;
+		}
+
+		$entryDAO = FreshRSS_Factory::createEntryDao($username);
+		$this->view->_layout(null);
+		header('Content-Type: application/json; charset=UTF-8');
+		$this->view->export = [
+			'username' => $username,
+			'email' => $userConfig->mail_login,
+			'is_admin' => $userConfig->is_admin,
+			'article_count' => max(0, $entryDAO->count() - 1),
+		];
 	}
 
 	/** @return array{feed_count:?int,article_count:?int,database_size:?int,language:string,mail_login:string,enabled:bool,is_admin:bool,last_user_activity:string,is_default:bool} */
