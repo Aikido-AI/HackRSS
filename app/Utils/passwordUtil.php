@@ -15,6 +15,9 @@ class FreshRSS_password_Util {
 			PASSWORD_BCRYPT,
 			['cost' => self::BCRYPT_COST]
 		);
+		if (!is_string($passwordHash) || $passwordHash === '') {
+			throw new \RuntimeException('Failed to hash password');
+		}
 		return $passwordHash;
 	}
 
