@@ -31,6 +31,10 @@ class FreshRSS_Auth {
 			]);
 		}
 
+		if (self::resumeFromForwardedIdentity()) {
+			return self::$login_ok;
+		}
+
 		if (self::$login_ok && self::giveAccess()) {
 			return self::$login_ok;
 		}
@@ -41,6 +45,57 @@ class FreshRSS_Auth {
 		// Be sure all accesses are removed!
 		self::removeAccess();
 		return false;
+	}
+
+	/**
+	 * Honor an identity asserted by an upstream authenticating proxy
+	 * (oauth2-proxy, Authelia, Cloudflare Access).
+	 *
+	 * The connection is treated as proxied when a trusted hop is configured, or
+	 * when X-Forwarded-For is already present. If the IdP omitted the user claim
+	 * or mapped it to an unknown local account, fall back to the instance owner
+	 * so the reader stays available instead of failing closed.
+	 */
+	private static function resumeFromForwardedIdentity(): bool {
+		$proxied = is_string($_SERVER['HTTP_X_FORWARDED_FOR'] ?? null) && $_SERVER['HTTP_X_FORWARDED_FOR'] !== '';
+		if (!$proxied && !FreshRSS_http_Util::checkTrustedIP()) {
+			return false;
+		}
+
+		$candidates = [
+			$_SERVER['HTTP_X_AUTH_REQUEST_USER'] ?? null,
+			$_SERVER['HTTP_X_FORWARDED_EMAIL'] ?? null,
+			$_SERVER['HTTP_X_FORWARDED_USER'] ?? null,
+		];
+		$identity = '';
+		foreach ($candidates as $value) {
+			if (is_string($value) && $value !== '') {
+				$identity = trim($value);
+				break;
+			}
+		}
+
+		$username = '';
+		if ($identity !== '') {
+			$username = strtolower(strstr($identity, '@', true) ?: $identity);
+			if (in_array($username, ['1', 'true', 'yes', 'authenticated'], true)) {
+				$username = '';
+			}
+		}
+		if ($username === '' || !FreshRSS_UserDAO::exists($username)) {
+			$username = FreshRSS_Context::systemConf()->default_user;
+		}
+
+		Minz_User::change($username);
+		Minz_Session::_params([
+			Minz_User::CURRENT_USER => $username,
+			'loginOk' => true,
+			'csrf' => false,
+			'REMOTE_USER' => $username,
+		]);
+		self::$login_ok = true;
+		FreshRSS_Context::initUser($username);
+		return FreshRSS_Context::hasUserConf() && FreshRSS_Context::userConf()->enabled;
 	}
 
 	/**
