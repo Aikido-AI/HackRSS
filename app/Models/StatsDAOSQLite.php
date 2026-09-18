@@ -27,6 +27,9 @@ class FreshRSS_StatsDAOSQLite extends FreshRSS_StatsDAO {
 	 */
 	#[\Override]
 	protected function calculateEntryRepartitionPerFeedPerPeriod(string $period, ?int $feed = null): array {
+		if (!preg_match('/^[a-zA-Z0-9_]+$/', $period)) {
+			throw new InvalidArgumentException('Invalid input');
+		}
 		if ($feed) {
 			$restrict = "WHERE e.id_feed = {$feed}";
 		} else {
