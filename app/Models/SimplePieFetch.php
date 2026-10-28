@@ -6,6 +6,11 @@ final class FreshRSS_SimplePieFetch extends \SimplePie\File
 	public function __construct(string $url, int $timeout = 10, int $redirects = 5,
 		?array $headers = null, ?string $useragent = null, bool $force_fsockopen = false, array $curl_options = []) {
 
+		// Defence in depth: never forward forged identity headers (e.g. `X-WebAuth-User`, `Remote-User`) to the upstream server
+		if (is_array($curl_options[CURLOPT_HTTPHEADER] ?? null)) {
+			$curl_options[CURLOPT_HTTPHEADER] = FreshRSS_http_Util::removeIdentityHeaders($curl_options[CURLOPT_HTTPHEADER]);
+		}
+
 		// Remove case-insensitively default HTTP headers passed by $headers if they are overridden by $curl_options[CURLOPT_HTTPHEADER]
 		if (is_array($curl_options[CURLOPT_HTTPHEADER] ?? null) && is_array($headers)) {
 			$existingKeys = [];
