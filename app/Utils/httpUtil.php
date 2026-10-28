@@ -133,11 +133,34 @@ final class FreshRSS_http_Util {
 			}
 			// Remove HTTP authentication headers problematic for security
 			if ($k === CURLOPT_HTTPHEADER && is_array($curl_params[$k])) {
-				$curl_params[$k] = array_filter($curl_params[$k],
-					fn($header) => is_string($header) && !preg_match('/^(Remote[-_\s]*User|X[-_\s]*WebAuth[-_\s]*User)\\s*:/i', $header));
+				$curl_params[$k] = self::removeIdentityHeaders($curl_params[$k]);
 			}
 		}
 		return $curl_params;
+	}
+
+	/**
+	 * Remove HTTP header lines that would forge an authenticated identity towards header-based upstream authentication
+	 * (`Remote-User`, `X-WebAuth-User`). The header name is normalised (case, leading/trailing whitespace and control characters,
+	 * hyphens, underscores) so that variants such as ` x_webauth_user :` cannot bypass the filter.
+	 * Non-string entries are dropped.
+	 * @param array<mixed> $headers List of raw `Name: value` header lines
+	 * @return list<string>
+	 */
+	public static function removeIdentityHeaders(array $headers): array {
+		$result = [];
+		foreach ($headers as $header) {
+			if (!is_string($header)) {
+				continue;
+			}
+			$name = preg_split('/[:;]/', $header, 2)[0] ?? '';
+			$name = strtolower(preg_replace('/[\x00-\x20\x7f\-_]+/', '', $name) ?? '');
+			if ($name === 'remoteuser' || $name === 'xwebauthuser') {
+				continue;
+			}
+			$result[] = $header;
+		}
+		return $result;
 	}
 
 	private static function idn_to_puny(string $url): string {
