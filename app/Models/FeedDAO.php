@@ -179,6 +179,9 @@ class FreshRSS_FeedDAO extends Minz_ModelPdo {
 
 		$set = '';
 		foreach ($valuesTmp as $key => $v) {
+			if (preg_match('/^[a-zA-Z0-9_]+$/', (string)$key) !== 1) {
+				return false;
+			}
 			$set .= '`' . $key . '`=?, ';
 
 			if ($key === 'httpAuth') {
