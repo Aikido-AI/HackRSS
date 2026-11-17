@@ -27,21 +27,25 @@ class FreshRSS_StatsDAOSQLite extends FreshRSS_StatsDAO {
 	 */
 	#[\Override]
 	protected function calculateEntryRepartitionPerFeedPerPeriod(string $period, ?int $feed = null): array {
+		$values = [
+			':period' => $period,
+			':offset' => $this->getTimezoneOffset(),
+		];
 		if ($feed) {
-			$restrict = "WHERE e.id_feed = {$feed}";
+			$restrict = 'WHERE e.id_feed = :feed';
+			$values[':feed'] = $feed;
 		} else {
 			$restrict = '';
 		}
-		$offset = $this->getTimezoneOffset();
 		$sql = <<<SQL
-			SELECT strftime('{$period}', e.date + {$offset}, 'unixepoch') AS period, COUNT(1) AS count
+			SELECT strftime(:period, e.date + :offset, 'unixepoch') AS period, COUNT(1) AS count
 			FROM `_entry` AS e
 			{$restrict}
 			GROUP BY period
 			ORDER BY period ASC
 			SQL;
 
-		$res = $this->fetchAssoc($sql);
+		$res = $this->fetchAssoc($sql, $values);
 		if ($res == null) {
 			return [];
 		}

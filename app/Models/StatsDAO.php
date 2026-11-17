@@ -158,14 +158,14 @@ class FreshRSS_StatsDAO extends Minz_ModelPdo {
 		}
 		$offset = $this->getTimezoneOffset();
 		$sql = <<<SQL
-			SELECT DATE_FORMAT(FROM_UNIXTIME(e.date + {$offset}), '{$period}') AS period, COUNT(1) AS count
+			SELECT DATE_FORMAT(FROM_UNIXTIME(e.date + {$offset}), :period) AS period, COUNT(1) AS count
 			FROM `_entry` AS e
 			{$restrict}
 			GROUP BY period
 			ORDER BY period ASC
 			SQL;
 
-		$res = $this->fetchAssoc($sql);
+		$res = $this->fetchAssoc($sql, [':period' => $period]);
 		if (empty($res)) {
 			return [];
 		}
